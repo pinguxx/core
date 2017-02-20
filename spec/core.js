@@ -31,7 +31,7 @@ describe("x-tag ", function () {
     };
 
     document.querySelector('head').appendChild(script);
-    script.src = '../src/core.js?d=' + new Date().getTime();
+    script.src = '../dist/x-tag.js' //?d=' + new Date().getTime();
 
     waitsFor(function(){
       return xtagLoaded && DOMComponentsLoaded && WebComponentsReady && xtag;
