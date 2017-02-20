@@ -1382,14 +1382,14 @@ describe("x-tag ", function () {
       });
     });
 
-    it('should add Shadow DOM to the element', function (){
+    /*it('should add Shadow DOM to the element', function (){
       xtag.register('x-foo-shadow', {
         shadow: '<div>bar</div>'
       });
 
       var foo = document.createElement('x-foo-shadow');
       expect(Element.prototype.createShadowRoot ? foo.shadowRoot.firstElementChild.textContent == 'bar' : !foo.firstElementChild).toEqual(true);
-    });
+    });*/
 
     it('should add default content to the element', function (){
       xtag.register('x-foo-content', {

@@ -106,10 +106,10 @@ export default class Events {
             target = event.target,
             root = event.currentTarget;
         while (!match && target && target != root) {
-            if (target.tagName && DOM.matchSelector.call(target, pseudo.value)) match = target;
+            if (target.tagName && DOM.matchSelector(target, pseudo.value)) match = target;
             target = target.parentNode;
         }
-        if (!match && root.tagName && DOM.matchSelector.call(root, pseudo.value)) match = root;
+        if (!match && root.tagName && DOM.matchSelector(root, pseudo.value)) match = root;
         return match ? pseudo.listener = pseudo.listener.bind(match) : null;
     }
 
@@ -145,12 +145,13 @@ export default class Events {
             }, custom || {});
         event.attach = this.xtag.utils.toArray(event.base || event.attach);
         event.chain = key + (event.pseudos.length ? ':' + event.pseudos : '') + (pseudos.length ? ':' + pseudos.join(':') : '');
-        var stack = this.xtag.pseudos.applyPseudos(event.chain, fn, event._pseudos, event);
+        var stack = this.xtag.pseudo.applyPseudos(event.chain, fn, event._pseudos, event);
         event.stack = function (e) {
             //e.currentTarget = e.currentTarget || this;
             var detail = e.detail || {};
-            if (!detail.__stack__) return stack.apply(this, arguments);
-            else if (detail.__stack__ == stack) {
+            if (!detail.__stack__) {
+                return stack.apply(this, arguments);
+            } else if (detail.__stack__ == stack) {
                 e.stopPropagation();
                 e.cancelBubble = true;
                 return stack.apply(this, arguments);
@@ -200,7 +201,7 @@ export default class Events {
     removeEvent(element, type, event) {
         event = event || type;
         event.onRemove.call(element, event, event.listener);
-        this.xtag.pseudos.removePseudos(element, event._pseudos);
+        this.xtag.pseudo.removePseudos(element, event._pseudos);
         event._attach.forEach((obj) => {
             this.removeEvent(element, obj);
         });

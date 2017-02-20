@@ -8746,10 +8746,10 @@ var Accessors = function () {
                 acc = this;
             if (type == 'get') {
                 key[0] = prop;
-                tag.prototype[prop].get = this.xtag.pseudos.applyPseudos(key.join(':'), accessor[z], tag.pseudos, accessor[z]);
+                tag.prototype[prop].get = this.xtag.pseudo.applyPseudos(key.join(':'), accessor[z], tag.pseudos, accessor[z]);
             } else if (type == 'set') {
                 key[0] = prop;
-                tag.prototype[prop].set = this.xtag.pseudos.applyPseudos(key.join(':'), attr ? function (value) {
+                tag.prototype[prop].set = this.xtag.pseudo.applyPseudos(key.join(':'), attr ? function (value) {
                     var old,
                         method = 'setAttribute';
                     if (attr.boolean) {
@@ -9006,9 +9006,6 @@ var Dom = function () {
     }], [{
         key: 'matchSelector',
         value: function matchSelector(element, selector) {
-            if (!selector) {
-                return;
-            }
             return mSelector.call(element, selector);
         }
     }]);
@@ -9124,10 +9121,10 @@ var Events = function () {
                 target = event.target,
                 root = event.currentTarget;
             while (!match && target && target != root) {
-                if (target.tagName && Dom.matchSelector.call(target, pseudo.value)) match = target;
+                if (target.tagName && Dom.matchSelector(target, pseudo.value)) match = target;
                 target = target.parentNode;
             }
-            if (!match && root.tagName && Dom.matchSelector.call(root, pseudo.value)) match = root;
+            if (!match && root.tagName && Dom.matchSelector(root, pseudo.value)) match = root;
             return match ? pseudo.listener = pseudo.listener.bind(match) : null;
         }
     }, {
@@ -9166,11 +9163,13 @@ var Events = function () {
             }, custom || {});
             event.attach = this.xtag.utils.toArray(event.base || event.attach);
             event.chain = key + (event.pseudos.length ? ':' + event.pseudos : '') + (pseudos.length ? ':' + pseudos.join(':') : '');
-            var stack = this.xtag.pseudos.applyPseudos(event.chain, fn, event._pseudos, event);
+            var stack = this.xtag.pseudo.applyPseudos(event.chain, fn, event._pseudos, event);
             event.stack = function (e) {
                 //e.currentTarget = e.currentTarget || this;
                 var detail = e.detail || {};
-                if (!detail.__stack__) return stack.apply(this, arguments);else if (detail.__stack__ == stack) {
+                if (!detail.__stack__) {
+                    return stack.apply(this, arguments);
+                } else if (detail.__stack__ == stack) {
                     e.stopPropagation();
                     e.cancelBubble = true;
                     return stack.apply(this, arguments);
@@ -9226,7 +9225,7 @@ var Events = function () {
 
             event = event || type;
             event.onRemove.call(element, event, event.listener);
-            this.xtag.pseudos.removePseudos(element, event._pseudos);
+            this.xtag.pseudo.removePseudos(element, event._pseudos);
             event._attach.forEach(function (obj) {
                 _this3.removeEvent(element, obj);
             });
@@ -9282,7 +9281,7 @@ var Mixins = function () {
                         delete original[key];
                         key = key + ':mixins';
                     }
-                    original[key].__mixin__ = this.xtag.pseudos.applyPseudos(z + (z.match(':mixins') ? '' : ':mixins'), mixin[z], tag.pseudos, original[key].__mixin__);
+                    original[key].__mixin__ = this.xtag.pseudo.applyPseudos(z + (z.match(':mixins') ? '' : ':mixins'), mixin[z], tag.pseudos, original[key].__mixin__);
                 } else {
                     original[z] = mixin[z];
                     delete original[key];
@@ -9293,7 +9292,7 @@ var Mixins = function () {
         key: 'addMixin',
         value: function addMixin(tag, original, mixin) {
             for (var z in mixin) {
-                original[z + ':__mixin__(' + this.uniqueMixinCount++ + ')'] = this.xtag.pseudos.applyPseudos(z, mixin[z], tag.pseudos);
+                original[z + ':__mixin__(' + this.uniqueMixinCount++ + ')'] = this.xtag.pseudo.applyPseudos(z, mixin[z], tag.pseudos);
             }
         }
     }, {
@@ -9438,9 +9437,9 @@ var Pseudos = function () {
                     this.parsePseudo(function () {
                         var name = matches[i][0],
                             value = matches[i][1];
-                        if (!_this.pseudos[name]) throw "pseudo not found: " + name + " " + value;
+                        if (!_this.pseudos[name] && !pseudoObj.xtag.pseudos[name]) throw "pseudo not found: " + name + " " + value;
                         value = value === '' || typeof value == 'undefined' ? null : value;
-                        var pseudo = pseudos[i] = Object.create(pseudoObj.pseudos[name]);
+                        var pseudo = pseudos[i] = Object.create(_this.pseudos[name] || pseudoObj.xtag.pseudos[name]);
                         pseudo.key = key;
                         pseudo.name = name;
                         pseudo.value = value;
@@ -9485,6 +9484,7 @@ var Repository = function Repository() {
 
     this.tags = {};
     this.mixins = {};
+    this.pseudos = {};
 };
 
 var Repository$1 = new Repository();
@@ -9628,7 +9628,7 @@ var XTag = function () {
         this.accessors = new Accessors(this);
         this.dom = new Dom(this);
         this.event = new Events(this);
-        this.pseudos = new Pseudos(this);
+        this.pseudo = new Pseudos(this);
         this.mixin = new Mixins(this);
         this.repository = Repository$1;
         this.utils = new Utilities(this);
@@ -9643,7 +9643,9 @@ var XTag = function () {
             'prototype': {
                 xtag: {
                     get: function get() {
-                        return this.__xtag__ ? this.__xtag__ : this.__xtag__ = { data: {} };
+                        return this.__xtag__ ? this.__xtag__ : this.__xtag__ = {
+                            data: {}
+                        };
                     }
                 }
             }
@@ -9656,6 +9658,8 @@ var XTag = function () {
             var xtag = this.repository.tags[name];
             if (!xtag) {
                 xtag = new XTag();
+            } else {
+                return xtag;
             }
             return xtag._register(name, options);
         }
@@ -9677,9 +9681,12 @@ var XTag = function () {
             for (var z in tag.events) {
                 tag.events[z] = this.event.parseEvent(z, tag.events[z]);
             }for (z in lifecycle) {
-                lifecycle[z.split(':')[0]] = this.pseudos.applyPseudos(z, lifecycle[z], tag.pseudos, lifecycle[z]);
+                lifecycle[z.split(':')[0]] = this.pseudo.applyPseudos(z, lifecycle[z], tag.pseudos, lifecycle[z]);
             }for (z in tag.methods) {
-                proto[z.split(':')[0]] = { value: this.pseudos.applyPseudos(z, tag.methods[z], tag.pseudos, tag.methods[z]), enumerable: true };
+                proto[z.split(':')[0]] = {
+                    value: this.pseudo.applyPseudos(z, tag.methods[z], tag.pseudos, tag.methods[z]),
+                    enumerable: true
+                };
             }for (z in tag.accessors) {
                 this.accessors.parseAccessor(tag, z);
             } //if (tag.shadow) tag.shadow = tag.shadow.nodeName ? tag.shadow : this.dom.createFragment(tag.shadow);
@@ -9718,7 +9725,8 @@ var XTag = function () {
                     value: function value() {
                         if (removed) this.xtag.__parentNode__ = this.parentNode;
                         if (inserted) return inserted.apply(this, arguments);
-                    }, enumerable: true
+                    },
+                    enumerable: true
                 };
             }
             if (removed) {
@@ -9729,10 +9737,14 @@ var XTag = function () {
                         var output = removed.apply(this, args);
                         delete this.xtag.__parentNode__;
                         return output;
-                    }, enumerable: true
+                    },
+                    enumerable: true
                 };
             }
-            if (lifecycle.attributeChanged) proto.attributeChangedCallback = { value: lifecycle.attributeChanged, enumerable: true };
+            if (lifecycle.attributeChanged) proto.attributeChangedCallback = {
+                value: lifecycle.attributeChanged,
+                enumerable: true
+            };
 
             proto.setAttribute = {
                 writable: true,
@@ -9815,9 +9827,59 @@ var XTag = function () {
             return this.dom.query(element, selector);
         }
     }, {
+        key: 'hasClass',
+        value: function hasClass(element, klass) {
+            return this.dom.hasClass(element, klass);
+        }
+    }, {
+        key: 'addClass',
+        value: function addClass(element, klass) {
+            return this.dom.addClass(element, klass);
+        }
+    }, {
+        key: 'removeClass',
+        value: function removeClass(element, klass) {
+            return this.dom.removeClass(element, klass);
+        }
+    }, {
+        key: 'toggleClass',
+        value: function toggleClass(element, klass) {
+            return this.dom.toggleClass(element, klass);
+        }
+    }, {
+        key: 'typeOf',
+        value: function typeOf(obj) {
+            return this.utils.typeOf(obj);
+        }
+    }, {
+        key: 'toArray',
+        value: function toArray(obj) {
+            return this.utils.toArray(obj);
+        }
+    }, {
+        key: 'queryChildren',
+        value: function queryChildren(element, selector) {
+            return this.dom.queryChildren(element, selector);
+        }
+    }, {
+        key: 'wrap',
+        value: function wrap(original, fn) {
+            return this.utils.wrap(original, fn);
+        }
+    }, {
+        key: 'uid',
+        value: function uid() {
+            return this.dom.uid();
+        }
+    }, {
         key: 'mixins',
         get: function get() {
             return this.repository.mixins;
+        }
+    }, {
+        key: 'pseudos',
+        get: function get() {
+            return this.repository.pseudos;
         }
     }]);
 

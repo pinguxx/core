@@ -17,7 +17,7 @@ export default class Mixins {
                     delete original[key];
                     key = key + ':mixins';
                 }
-                original[key].__mixin__ = this.xtag.pseudos.applyPseudos(z + (z.match(':mixins') ? '' : ':mixins'), mixin[z], tag.pseudos, original[key].__mixin__);
+                original[key].__mixin__ = this.xtag.pseudo.applyPseudos(z + (z.match(':mixins') ? '' : ':mixins'), mixin[z], tag.pseudos, original[key].__mixin__);
             }
             else {
                 original[z] = mixin[z];
@@ -28,7 +28,7 @@ export default class Mixins {
 
     addMixin(tag, original, mixin) {
         for (let z in mixin) {
-            original[z + ':__mixin__(' + (this.uniqueMixinCount++) + ')'] = this.xtag.pseudos.applyPseudos(z, mixin[z], tag.pseudos);
+            original[z + ':__mixin__(' + (this.uniqueMixinCount++) + ')'] = this.xtag.pseudo.applyPseudos(z, mixin[z], tag.pseudos);
         }
     }
 

@@ -71,9 +71,9 @@ export default class Pseudos {
             while (i--) this.parsePseudo(() => {
                 var name = matches[i][0],
                     value = matches[i][1];
-                if (!this.pseudos[name]) throw "pseudo not found: " + name + " " + value;
+                if (!this.pseudos[name] && !pseudoObj.xtag.pseudos[name]) throw "pseudo not found: " + name + " " + value;
                 value = (value === '' || typeof value == 'undefined') ? null : value;
-                var pseudo = pseudos[i] = Object.create(pseudoObj.pseudos[name]);
+                var pseudo = pseudos[i] = Object.create(this.pseudos[name] || pseudoObj.xtag.pseudos[name]);
                 pseudo.key = key;
                 pseudo.name = name;
                 pseudo.value = value;

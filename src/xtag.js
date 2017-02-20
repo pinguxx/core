@@ -15,7 +15,7 @@ export default class XTag {
         this.accessors = new Accessors(this);
         this.dom = new DOM(this);
         this.event = new Events(this);
-        this.pseudos = new Pseudos(this);
+        this.pseudo = new Pseudos(this);
         this.mixin = new Mixins(this);
         this.repository = Repository;
         this.utils = new Utils(this);
@@ -30,7 +30,9 @@ export default class XTag {
             'prototype': {
                 xtag: {
                     get: function () {
-                        return this.__xtag__ ? this.__xtag__ : (this.__xtag__ = { data: {} });
+                        return this.__xtag__ ? this.__xtag__ : (this.__xtag__ = {
+                            data: {}
+                        });
                     }
                 }
             }
@@ -40,6 +42,8 @@ export default class XTag {
         let xtag = this.repository.tags[name];
         if (!xtag) {
             xtag = new XTag();
+        } else {
+            return xtag;
         }
         return xtag._register(name, options);
     }
@@ -58,8 +62,11 @@ export default class XTag {
         var lifecycle = tag.lifecycle;
 
         for (var z in tag.events) tag.events[z] = this.event.parseEvent(z, tag.events[z]);
-        for (z in lifecycle) lifecycle[z.split(':')[0]] = this.pseudos.applyPseudos(z, lifecycle[z], tag.pseudos, lifecycle[z]);
-        for (z in tag.methods) proto[z.split(':')[0]] = { value: this.pseudos.applyPseudos(z, tag.methods[z], tag.pseudos, tag.methods[z]), enumerable: true };
+        for (z in lifecycle) lifecycle[z.split(':')[0]] = this.pseudo.applyPseudos(z, lifecycle[z], tag.pseudos, lifecycle[z]);
+        for (z in tag.methods) proto[z.split(':')[0]] = {
+            value: this.pseudo.applyPseudos(z, tag.methods[z], tag.pseudos, tag.methods[z]),
+            enumerable: true
+        };
         for (z in tag.accessors) this.accessors.parseAccessor(tag, z);
 
         //if (tag.shadow) tag.shadow = tag.shadow.nodeName ? tag.shadow : this.dom.createFragment(tag.shadow);
@@ -98,7 +105,8 @@ export default class XTag {
                 value: function () {
                     if (removed) this.xtag.__parentNode__ = this.parentNode;
                     if (inserted) return inserted.apply(this, arguments);
-                }, enumerable: true
+                },
+                enumerable: true
             };
         }
         if (removed) {
@@ -109,10 +117,14 @@ export default class XTag {
                     var output = removed.apply(this, args);
                     delete this.xtag.__parentNode__;
                     return output;
-                }, enumerable: true
+                },
+                enumerable: true
             };
         }
-        if (lifecycle.attributeChanged) proto.attributeChangedCallback = { value: lifecycle.attributeChanged, enumerable: true };
+        if (lifecycle.attributeChanged) proto.attributeChangedCallback = {
+            value: lifecycle.attributeChanged,
+            enumerable: true
+        };
 
         proto.setAttribute = {
             writable: true,
@@ -187,8 +199,38 @@ export default class XTag {
     get mixins() {
         return this.repository.mixins;
     }
-    query(element, selector) { 
+    get pseudos() {
+        return this.repository.pseudos;
+    }
+    query(element, selector) {
         return this.dom.query(element, selector);
+    }
+    hasClass(element, klass) {
+        return this.dom.hasClass(element, klass);
+    }
+    addClass(element, klass) {
+        return this.dom.addClass(element, klass);
+    }
+    removeClass(element, klass) {
+        return this.dom.removeClass(element, klass);
+    }
+    toggleClass(element, klass) {
+        return this.dom.toggleClass(element, klass);
+    }
+    typeOf(obj) {
+        return this.utils.typeOf(obj);
+    }
+    toArray(obj) {
+        return this.utils.toArray(obj);
+    }
+    queryChildren(element, selector) {
+        return this.dom.queryChildren(element, selector);
+    }
+    wrap(original, fn) {
+        return this.utils.wrap(original, fn);
+    }
+    uid() {
+        return this.dom.uid();
     }
 }
 

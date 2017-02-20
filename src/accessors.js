@@ -27,10 +27,10 @@ export default class Accessors {
             acc = this;
         if (type == 'get') {
             key[0] = prop;
-            tag.prototype[prop].get = this.xtag.pseudos.applyPseudos(key.join(':'), accessor[z], tag.pseudos, accessor[z]);
+            tag.prototype[prop].get = this.xtag.pseudo.applyPseudos(key.join(':'), accessor[z], tag.pseudos, accessor[z]);
         } else if (type == 'set') {
             key[0] = prop;
-            tag.prototype[prop].set = this.xtag.pseudos.applyPseudos(key.join(':'), attr ? function (value) {
+            tag.prototype[prop].set = this.xtag.pseudo.applyPseudos(key.join(':'), attr ? function (value) {
                 var old, method = 'setAttribute';
                 if (attr.boolean) {
                     value = !!value;

@@ -70,9 +70,6 @@ export default class Dom {
     }
 
     static matchSelector(element, selector) {
-        if (!selector) {
-            return;
-        }
         return mSelector.call(element, selector);
     }
 
