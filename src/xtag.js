@@ -12,7 +12,7 @@ import Utils from './utilities';
 
 export default class XTag {
     constructor() {
-        this.accessors = new Accessors(this);
+        this.accessor = new Accessors(this);
         this.dom = new DOM(this);
         this.event = new Events(this);
         this.pseudo = new Pseudos(this);
@@ -28,7 +28,7 @@ export default class XTag {
             lifecycle: {},
             attributes: {},
             'prototype': {
-                xtagObj: {
+                xtag: {
                     get: function () {
                         return this.__xtag__ ? this.__xtag__ : (this.__xtag__ = {
                             data: {}
@@ -75,7 +75,7 @@ export default class XTag {
             value: this.pseudo.applyPseudos(z, tag.methods[z], tag.pseudos, tag.methods[z]),
             enumerable: true
         };
-        for (z in tag.accessors) this.accessors.parseAccessor(tag, z);
+        for (z in tag.accessors) this.accessor.parseAccessor(tag, z);
 
         //if (tag.shadow) tag.shadow = tag.shadow.nodeName ? tag.shadow : this.dom.createFragment(tag.shadow);
         if (tag.content) tag.content = tag.content.nodeName ? tag.content.innerHTML : this.dom.parseMultiline(tag.content);
@@ -145,10 +145,10 @@ export default class XTag {
                     old = this.getAttribute(_name);
                     value = attr.boolean ? '' : attr.validate ? attr.validate.call(this, value) : value;
                 }
-                curTag.accessors.modAttr(this, attr, _name, value, 'setAttribute');
+                curTag.accessor.modAttr(this, attr, _name, value, 'setAttribute');
                 if (attr) {
                     if (attr.setter) attr.setter.call(this, attr.boolean ? true : value, old);
-                    curTag.accessors.syncAttr(this, attr, _name, value, 'setAttribute');
+                    curTag.accessor.syncAttr(this, attr, _name, value, 'setAttribute');
                 }
             }
         };
@@ -160,10 +160,10 @@ export default class XTag {
                 var _name = name.toLowerCase();
                 var attr = tag.attributes[_name];
                 var old = this.hasAttribute(_name);
-                curTag.accessors.modAttr(this, attr, _name, '', 'removeAttribute');
+                curTag.accessor.modAttr(this, attr, _name, '', 'removeAttribute');
                 if (attr) {
                     if (attr.setter) attr.setter.call(this, attr.boolean ? false : undefined, old);
-                    curTag.accessors.syncAttr(this, attr, _name, '', 'removeAttribute');
+                    curTag.accessor.syncAttr(this, attr, _name, '', 'removeAttribute');
                 }
             }
         };
@@ -240,9 +240,20 @@ export default class XTag {
     uid() {
         return this.dom.uid();
     }
+    addEvent(element, type, fn, capture) {
+        return this.event.addEvent(element, type, fn, capture);
+    }
+    skipFrame(fn) {
+        return this.dom.skipFrame(fn);
+    }
+    removeEvent(element, type, event) {
+        return this.event.removeEvent(element, type, event);
+    }
 }
 
 window.xtag = new XTag();
+
+export let xtag = window.xtag;
 
 document.addEventListener('WebComponentsReady', function () {
     window.xtag.fireEvent(document.body, 'DOMComponentsLoaded');

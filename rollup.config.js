@@ -15,14 +15,9 @@ export default {
 		npm({
             jsnext: true,
             main: true,
-            browser: true,
-            sourceMap: true
+            browser: true
         }),
-		commonjs({
-            sourceMap: true
-        }),
-		babel({
-            sourceMap: true
-        })
+		commonjs(),
+		babel()
 	]
 }

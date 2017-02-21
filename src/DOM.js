@@ -49,9 +49,10 @@ export default class Dom {
     }
 
     requestFrame() {
+        let dom = this;
         const raf = this.win.requestAnimationFrame ||
             this.win[this.prefix.lowercase + 'RequestAnimationFrame'] ||
-            function (fn) { return this.win.setTimeout(fn, 20); };
+            function (fn) { return dom.win.setTimeout(fn, 20); };
         return function (fn) { return raf(fn); };
     }
 
@@ -63,9 +64,8 @@ export default class Dom {
     }
 
     skipFrame(fn) {
-        let id = this.requestFrame(() => {
-            id = this.requestFrame(fn);
-        });
+        let dom = this;
+        var id = dom.requestFrame(function(){ id = dom.requestFrame(fn); })(fn);
         return id;
     }
 

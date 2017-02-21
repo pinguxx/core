@@ -25,7 +25,7 @@ export default class Accessors {
         const key = z.split(':'),
             type = key[0],
             acc = this,
-            proto = Object.getPrototypeOf(tag);
+            proto = tag.prototype || Object.getPrototypeOf(tag);
         if (type == 'get') {
             key[0] = prop;
             proto[prop].get = this.xtag.pseudo.applyPseudos(key.join(':'), accessor[z], tag.pseudos, accessor[z]);
@@ -62,7 +62,7 @@ export default class Accessors {
             attr = accessor.attribute,
             name,
             acc = this,
-            proto = Object.getPrototypeOf(tag);
+            proto = tag.prototype || Object.getPrototypeOf(tag);
         proto[prop] = {};
 
         if (attr) {
