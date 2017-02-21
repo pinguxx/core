@@ -8706,13 +8706,13 @@ var pep = __commonjs(function (module, exports, global) {
   });
 });
 
-var _createClass$1 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass$2 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck$1(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$2(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Accessors = function () {
     function Accessors(xtag) {
-        _classCallCheck$1(this, Accessors);
+        _classCallCheck$2(this, Accessors);
 
         this.attrProto = {
             setAttribute: Element.prototype.setAttribute,
@@ -8722,7 +8722,7 @@ var Accessors = function () {
         this.xtag = xtag;
     }
 
-    _createClass$1(Accessors, [{
+    _createClass$2(Accessors, [{
         key: 'modAttr',
         value: function modAttr(element, attr, name, value, method) {
             this.attrProto[method].call(element, name, attr && attr.boolean ? '' : value);
@@ -8743,13 +8743,14 @@ var Accessors = function () {
         value: function attachProperties(tag, prop, z, accessor, attr, name) {
             var key = z.split(':'),
                 type = key[0],
-                acc = this;
+                acc = this,
+                proto = Object.getPrototypeOf(tag);
             if (type == 'get') {
                 key[0] = prop;
-                tag.prototype[prop].get = this.xtag.pseudo.applyPseudos(key.join(':'), accessor[z], tag.pseudos, accessor[z]);
+                proto[prop].get = this.xtag.pseudo.applyPseudos(key.join(':'), accessor[z], tag.pseudos, accessor[z]);
             } else if (type == 'set') {
                 key[0] = prop;
-                tag.prototype[prop].set = this.xtag.pseudo.applyPseudos(key.join(':'), attr ? function (value) {
+                proto[prop].set = this.xtag.pseudo.applyPseudos(key.join(':'), attr ? function (value) {
                     var old,
                         method = 'setAttribute';
                     if (attr.boolean) {
@@ -8771,7 +8772,7 @@ var Accessors = function () {
                     attr.setter = accessor[z];
                 }
             } else {
-                tag.prototype[prop][z] = accessor[z];
+                proto[prop][z] = accessor[z];
             }
         }
     }, {
@@ -8780,8 +8781,9 @@ var Accessors = function () {
             var accessor = tag.accessors[prop],
                 attr = accessor.attribute,
                 name,
-                acc = this;
-            tag.prototype[prop] = {};
+                acc = this,
+                proto = Object.getPrototypeOf(tag);
+            proto[prop] = {};
 
             if (attr) {
                 name = attr.name = (attr ? attr.name || prop.replace(this.regexCamelToDash, '$1-$2') : prop).toLowerCase();
@@ -8794,13 +8796,13 @@ var Accessors = function () {
             }
 
             if (attr) {
-                if (!tag.prototype[prop].get) {
+                if (!proto[prop].get) {
                     var method = (attr.boolean ? 'has' : 'get') + 'Attribute';
-                    tag.prototype[prop].get = function () {
+                    proto[prop].get = function () {
                         return this[method](name);
                     };
                 }
-                if (!tag.prototype[prop].set) tag.prototype[prop].set = function (value) {
+                if (!proto[prop].set) proto[prop].set = function (value) {
                     value = attr.boolean ? !!value : attr.validate ? attr.validate.call(this, value) : value;
                     var method = attr.boolean ? value ? 'setAttribute' : 'removeAttribute' : 'setAttribute';
                     acc.modAttr(this, attr, name, value, method);
@@ -8813,9 +8815,9 @@ var Accessors = function () {
     return Accessors;
 }();
 
-var _createClass$2 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck$2(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$3(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var prefix = function prefix() {
     var keys = Object.keys(window).join(),
@@ -8832,7 +8834,7 @@ var mSelector = Element.prototype.matches || Element.prototype.matchesSelector |
 
 var Dom = function () {
     function Dom(xtag) {
-        _classCallCheck$2(this, Dom);
+        _classCallCheck$3(this, Dom);
 
         this.xtag = xtag;
         this.container = document.createElement('div');
@@ -8844,7 +8846,7 @@ var Dom = function () {
         this.mSelector = mSelector;
     }
 
-    _createClass$2(Dom, [{
+    _createClass$3(Dom, [{
         key: 'parseMultiline',
         value: function parseMultiline(fn) {
             return typeof fn == 'function' ? this.unwrapComment.exec(fn.toString())[1] : fn;
@@ -9013,13 +9015,13 @@ var Dom = function () {
     return Dom;
 }();
 
-var _createClass$3 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass$4 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck$3(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$4(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Events = function () {
     function Events(xtag) {
-        _classCallCheck$3(this, Events);
+        _classCallCheck$4(this, Events);
 
         this.xtag = xtag;
         this.skipProps = {};
@@ -9103,7 +9105,7 @@ var Events = function () {
         }
     }
 
-    _createClass$3(Events, [{
+    _createClass$4(Events, [{
         key: 'inheritEvent',
         value: function inheritEvent(event, base) {
             var desc = Object.getOwnPropertyDescriptor(event, 'target');
@@ -9148,6 +9150,7 @@ var Events = function () {
 
             var pseudos = type.split(':'),
                 key = pseudos.shift(),
+                eventObj = this,
                 custom = this.customEvents[key],
                 event = this.xtag.utils.merge({
                 type: key,
@@ -9176,7 +9179,7 @@ var Events = function () {
                 }
             };
             event.listener = function (e) {
-                var args = this.xtag.utils.toArray(arguments),
+                var args = eventObj.xtag.utils.toArray(arguments),
                     output = event.condition.apply(this, args.concat([event]));
                 if (!output) return output;
                 // The second condition in this IF is to address the following Blink regression: https://code.google.com/p/chromium/issues/detail?id=367537
@@ -9252,19 +9255,19 @@ var Events = function () {
     return Events;
 }();
 
-var _createClass$4 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass$5 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck$4(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$5(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Mixins = function () {
     function Mixins(xtag) {
-        _classCallCheck$4(this, Mixins);
+        _classCallCheck$5(this, Mixins);
 
         this.xtag = xtag;
         this.uniqueMixinCount = 0;
     }
 
-    _createClass$4(Mixins, [{
+    _createClass$5(Mixins, [{
         key: 'mergeMixin',
         value: function mergeMixin(tag, original, mixin) {
             var key = void 0,
@@ -9348,13 +9351,13 @@ var Mixins = function () {
     return Mixins;
 }();
 
-var _createClass$5 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass$6 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck$5(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$6(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Pseudos = function () {
     function Pseudos(xtag) {
-        _classCallCheck$5(this, Pseudos);
+        _classCallCheck$6(this, Pseudos);
 
         this.xtag = xtag;
         this.regexDigits = /(\d+)/g;
@@ -9410,7 +9413,7 @@ var Pseudos = function () {
         };
     }
 
-    _createClass$5(Pseudos, [{
+    _createClass$6(Pseudos, [{
         key: 'parsePseudo',
         value: function parsePseudo(fn) {
             fn();
@@ -9477,10 +9480,10 @@ var Pseudos = function () {
     return Pseudos;
 }();
 
-function _classCallCheck$6(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$7(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Repository = function Repository() {
-    _classCallCheck$6(this, Repository);
+    _classCallCheck$7(this, Repository);
 
     this.tags = {};
     this.mixins = {};
@@ -9489,16 +9492,16 @@ var Repository = function Repository() {
 
 var Repository$1 = new Repository();
 
-var _createClass$7 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass$8 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck$8(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$9(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Clone = function () {
     function Clone() {
-        _classCallCheck$8(this, Clone);
+        _classCallCheck$9(this, Clone);
     }
 
-    _createClass$7(Clone, null, [{
+    _createClass$8(Clone, null, [{
         key: "object",
         value: function object(src, utils) {
             var obj = {};
@@ -9522,9 +9525,9 @@ var Clone = function () {
     return Clone;
 }();
 
-var _createClass$6 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass$7 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck$7(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$8(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 /*
     This is an enhanced typeof check for all types of objects. Where typeof would normaly return
@@ -9533,16 +9536,17 @@ function _classCallCheck$7(instance, Constructor) { if (!(instance instanceof Co
 */
 
 var Utilities = function () {
-    function Utilities() {
-        _classCallCheck$7(this, Utilities);
+    function Utilities(xtag) {
+        _classCallCheck$8(this, Utilities);
 
+        this.xtag = xtag;
         this.typeCache = {};
         this.typeString = this.typeCache.toString;
         this.typeRegexp = /\s([a-zA-Z]+)/;
         this.unsliceable = { 'undefined': 1, 'null': 1, 'number': 1, 'boolean': 1, 'string': 1, 'function': 1 };
     }
 
-    _createClass$6(Utilities, [{
+    _createClass$7(Utilities, [{
         key: 'noop',
         value: function noop() {}
     }, {
@@ -9595,8 +9599,35 @@ var Utilities = function () {
             }
             for (var i = 1, l = argLength; i < l; i++) {
                 var object = arguments[i];
-                for (var key in object) {
-                    this.mergeOne(source, key, object[key]);
+                if (object instanceof this.xtag.constructor) {
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = Object.getOwnPropertyNames(Object.getPrototypeOf(object))[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var key = _step.value;
+
+                            this.mergeOne(source, key, object[key]);
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
+                        }
+                    }
+                } else {
+                    for (var _key in object) {
+                        this.mergeOne(source, _key, object[_key]);
+                    }
                 }
             }
             return source;
@@ -9617,13 +9648,13 @@ var Utilities = function () {
     return Utilities;
 }();
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+var _createClass$1 = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck$1(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var XTag = function () {
     function XTag() {
-        _classCallCheck(this, XTag);
+        _classCallCheck$1(this, XTag);
 
         this.accessors = new Accessors(this);
         this.dom = new Dom(this);
@@ -9641,7 +9672,7 @@ var XTag = function () {
             lifecycle: {},
             attributes: {},
             'prototype': {
-                xtag: {
+                xtagObj: {
                     get: function get() {
                         return this.__xtag__ ? this.__xtag__ : this.__xtag__ = {
                             data: {}
@@ -9650,14 +9681,22 @@ var XTag = function () {
                 }
             }
         };
+        console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(this)));
+        if (this.name) {
+            this.register(this.name, this);
+        }
     }
 
-    _createClass(XTag, [{
+    _createClass$1(XTag, [{
         key: 'register',
         value: function register(name, options) {
             var xtag = this.repository.tags[name];
             if (!xtag) {
-                xtag = new XTag();
+                if (options instanceof XTag) {
+                    xtag = options;
+                } else {
+                    xtag = new XTag();
+                }
             } else {
                 return xtag;
             }
@@ -9675,7 +9714,7 @@ var XTag = function () {
             var basePrototype = options.prototype;
             delete options.prototype;
             var tag = this.repository.tags[_name].compiled = this.mixin.applyMixins(this.utils.merge({}, this.defaultOptions, options));
-            var proto = tag.prototype;
+            var proto = tag.prototype || Object.getPrototypeOf(tag);
             var lifecycle = tag.lifecycle;
 
             for (var z in tag.events) {
@@ -9893,6 +9932,70 @@ document.addEventListener('WebComponentsReady', function () {
 });
 //console.log(window.xtag);
 
-return XTag;
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Child = function (_XTag) {
+    _inherits(Child, _XTag);
+
+    function Child() {
+        _classCallCheck(this, Child);
+
+        return _possibleConstructorReturn(this, (Child.__proto__ || Object.getPrototypeOf(Child)).apply(this, arguments));
+    }
+
+    _createClass(Child, [{
+        key: 'name',
+        get: function get() {
+            return 'o-child';
+        }
+    }, {
+        key: 'lifecycle',
+        get: function get() {
+            return {
+                created: function created() {
+                    this.start();
+                }
+            };
+        }
+    }, {
+        key: 'methods',
+        get: function get() {
+            return {
+                start: function start() {
+                    this.update();
+                    this.xtagObj.interval = setInterval(this.update.bind(this), 1000);
+                },
+                stop: function stop() {
+                    this.xtagObj.interval = clearInterval(this.xtagObj.interval);
+                },
+                update: function update() {
+                    this.textContent = new Date().toLocaleTimeString();
+                }
+            };
+        }
+    }, {
+        key: 'events',
+        get: function get() {
+            return {
+                tap: function tap() {
+                    if (this.xtagObj.interval) this.stop();else this.start();
+                }
+            };
+        }
+    }]);
+
+    return Child;
+}(XTag);
+
+var child = new Child();
+console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(child)));
+
+return Child;
 
 })));

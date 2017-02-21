@@ -28,7 +28,7 @@ export default class XTag {
             lifecycle: {},
             attributes: {},
             'prototype': {
-                xtag: {
+                xtagObj: {
                     get: function () {
                         return this.__xtag__ ? this.__xtag__ : (this.__xtag__ = {
                             data: {}
@@ -37,11 +37,19 @@ export default class XTag {
                 }
             }
         }
+        console.log(Object.getOwnPropertyNames(Object.getPrototypeOf(this)));
+        if (this.name) {
+            this.register(this.name, this);
+        }
     }
     register(name, options) {
         let xtag = this.repository.tags[name];
         if (!xtag) {
-            xtag = new XTag();
+            if (options instanceof XTag) {
+                xtag = options;
+            } else {
+                xtag = new XTag();
+            }
         } else {
             return xtag;
         }
@@ -58,7 +66,7 @@ export default class XTag {
         var basePrototype = options.prototype;
         delete options.prototype;
         var tag = this.repository.tags[_name].compiled = this.mixin.applyMixins(this.utils.merge({}, this.defaultOptions, options));
-        var proto = tag.prototype;
+        var proto = tag.prototype || Object.getPrototypeOf(tag);
         var lifecycle = tag.lifecycle;
 
         for (var z in tag.events) tag.events[z] = this.event.parseEvent(z, tag.events[z]);

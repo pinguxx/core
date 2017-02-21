@@ -130,6 +130,7 @@ export default class Events {
     parseEvent(type, fn) {
         var pseudos = type.split(':'),
             key = pseudos.shift(),
+            eventObj = this,
             custom = this.customEvents[key],
             event = this.xtag.utils.merge({
                 type: key,
@@ -158,7 +159,7 @@ export default class Events {
             }
         };
         event.listener = function (e) {
-            var args = this.xtag.utils.toArray(arguments),
+            var args = eventObj.xtag.utils.toArray(arguments),
                 output = event.condition.apply(this, args.concat([event]));
             if (!output) return output;
             // The second condition in this IF is to address the following Blink regression: https://code.google.com/p/chromium/issues/detail?id=367537

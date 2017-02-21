@@ -6,7 +6,7 @@ import commonjs from 'rollup-plugin-commonjs';
 import npm from 'rollup-plugin-node-resolve';
 
 export default {
-    entry: 'src/xtag.js',
+    entry: 'src/test.js',
     dest: 'dist/x-tag.js',
     format: 'umd',
     //sourceMap: true,

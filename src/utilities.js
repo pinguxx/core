@@ -7,7 +7,8 @@ import Clone from './clone.js';
 */
 
 export default class Utilities {
-    constructor() {
+    constructor(xtag) {
+        this.xtag = xtag;
         this.typeCache = {};
         this.typeString = this.typeCache.toString;
         this.typeRegexp = /\s([a-zA-Z]+)/;
@@ -50,8 +51,14 @@ export default class Utilities {
         }
         for (let i = 1, l = argLength; i < l; i++) {
             let object = arguments[i];
-            for (var key in object) {
-                this.mergeOne(source, key, object[key]);
+            if (object instanceof this.xtag.constructor) {
+                for (let key of Object.getOwnPropertyNames(Object.getPrototypeOf(object))) {
+                    this.mergeOne(source, key, object[key]);
+                }
+            } else {
+                for (let key in object) {
+                    this.mergeOne(source, key, object[key]);
+                }
             }
         }
         return source;

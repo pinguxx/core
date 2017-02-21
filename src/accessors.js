@@ -24,13 +24,14 @@ export default class Accessors {
     attachProperties(tag, prop, z, accessor, attr, name) {
         const key = z.split(':'),
             type = key[0],
-            acc = this;
+            acc = this,
+            proto = Object.getPrototypeOf(tag);
         if (type == 'get') {
             key[0] = prop;
-            tag.prototype[prop].get = this.xtag.pseudo.applyPseudos(key.join(':'), accessor[z], tag.pseudos, accessor[z]);
+            proto[prop].get = this.xtag.pseudo.applyPseudos(key.join(':'), accessor[z], tag.pseudos, accessor[z]);
         } else if (type == 'set') {
             key[0] = prop;
-            tag.prototype[prop].set = this.xtag.pseudo.applyPseudos(key.join(':'), attr ? function (value) {
+            proto[prop].set = this.xtag.pseudo.applyPseudos(key.join(':'), attr ? function (value) {
                 var old, method = 'setAttribute';
                 if (attr.boolean) {
                     value = !!value;
@@ -52,7 +53,7 @@ export default class Accessors {
                 attr.setter = accessor[z];
             }
         } else {
-            tag.prototype[prop][z] = accessor[z];
+            proto[prop][z] = accessor[z];
         }
     }
 
@@ -60,8 +61,9 @@ export default class Accessors {
         var accessor = tag.accessors[prop],
             attr = accessor.attribute,
             name,
-            acc = this;
-        tag.prototype[prop] = {};
+            acc = this,
+            proto = Object.getPrototypeOf(tag);
+        proto[prop] = {};
 
         if (attr) {
             name = attr.name = (attr ? (attr.name || prop.replace(this.regexCamelToDash, '$1-$2')) : prop).toLowerCase();
@@ -74,13 +76,13 @@ export default class Accessors {
         }
 
         if (attr) {
-            if (!tag.prototype[prop].get) {
+            if (!proto[prop].get) {
                 var method = (attr.boolean ? 'has' : 'get') + 'Attribute';
-                tag.prototype[prop].get = function () {
+                proto[prop].get = function () {
                     return this[method](name);
                 };
             }
-            if (!tag.prototype[prop].set) tag.prototype[prop].set = function (value) {
+            if (!proto[prop].set) proto[prop].set = function (value) {
                 value = attr.boolean ? !!value : attr.validate ? attr.validate.call(this, value) : value;
                 var method = attr.boolean ? (value ? 'setAttribute' : 'removeAttribute') : 'setAttribute';
                 acc.modAttr(this, attr, name, value, method);
