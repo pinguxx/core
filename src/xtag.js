@@ -21,7 +21,7 @@ export default class XTag {
         this.utils = new Utils(this);
         this.defaultOptions = {
             pseudos: [],
-            mixins: [],
+            mymixins: [],
             events: {},
             methods: {},
             accessors: {},

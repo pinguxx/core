@@ -3,115 +3,144 @@
 <script src="x-tag.js"></script>
 
 <style>
-    html,
-    body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-    }
-    
-    [hidden] {
-        display: none;
-    }
-    
-    [x-notify-parentnode] {
+    x-input {
         position: relative;
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        height: 2em;
+        font-size: 1em;
+        border: 1px solid;
+        border-color: rgba(0, 0, 0, 0.225) rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.175);
+        background-color: #fff;
         overflow: hidden;
-    }
-    
-    x-notify {
-        display: none;
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        padding: 0.8em 2.5em 0.8em 0.7em;
-        color: #fff;
-        background: #34495e;
-        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
-        cursor: default;
         -webkit-box-sizing: border-box;
         -moz-box-sizing: border-box;
         -ms-box-sizing: border-box;
         box-sizing: border-box;
-        -webkit-transform: translateY(100%);
-        -ms-transform: translateY(100%);
-        transform: translateY(100%);
-        -webkit-transition: opacity 0.4s, transform 0.4s;
-        transition: opacity 0.4s, transform 0.4s;
     }
     
-    x-notify>*,
-    x-notify:before,
-    x-notify:after {
-        display: inline-block;
-        vertical-align: middle;
-    }
-    
-    x-notify[closable]:after {
-        content: "×";
-        position: absolute;
-        top: 50%;
-        right: 0;
-        width: 1em;
-        height: 1em;
-        margin: 0 0.4em;
-        color: #f00;
-        background: #fff;
-        border-radius: 1em;
-        font-size: 1.25em;
-        font-weight: bold;
+    x-input > *:not(.x-input-text) {
+        position: relative;
+        min-width: 1em;
+        margin: 0.15em;
+        padding: 0.3em;
+        font-size: 85%;
+        background: none;
+        border: 1px solid transparent;
+        color: #000;
         text-align: center;
         line-height: 1em;
-        cursor: pointer;
-        -webkit-transform: translateY(-50%);
-        transform: translateY(-50%);
+        opacity: 0.4;
+        z-index: 1;
+        -webkit-box-ordinal-group: 3;
+        -moz-box-ordinal-group: 3;
+        -ms-flex-order: 3;
+        -webkit-order: 3;
+        order: 3;
+        -webkit-transition: opacity 0.15s;
+        -moz-transition: opacity 0.15s;
+        -ms-transition: opacity 0.15s;
+        transition: opacity 0.2s;
     }
     
-    x-notify[position="top"] {
-        top: 0;
-        bottom: auto;
-        -webkit-transform: translateY(-100%);
-        transform: translateY(-100%);
+    x-input > *:not(.x-input-text):hover {
+        border-color: rgba(0, 0, 0, 0.5);
+        opacity: 0.6;
     }
     
-    x-notify[transition="show"] {
-        display: block;
+    x-input > *:not(.x-input-text)[pressed],
+    x-input > *:not(.x-input-text):active {
         opacity: 1;
-        -webkit-transform: translateY(0%);
-        transform: translateY(0%);
     }
     
-    x-notify[transition="hide"] {
-        opacity: 0;
-        -webkit-transition-duration: 0.2s;
-        transition-duration: 0.2s;
+    x-input > button,
+    x-input > button:hover,
+    x-input > button:focus {
+        background: none;
     }
     
-    x-notify[transitioning] {
+    x-input > button:not([pressed]) {
+        -webkit-box-shadow: none;
+        -moz-box-shadow: none;
+        -ms-box-shadow: none;
+        box-shadow: none;
+    }
+    
+    x-input > [position="left"] {
+        -webkit-box-ordinal-group: 1;
+        -moz-box-ordinal-group: 1;
+        -ms-flex-order: 1;
+        -webkit-order: 1;
+        order: 1;
+    }
+    
+    x-input .x-input-text {
+        position: relative;
+        height: 100%;
+        -webkit-box-flex: 1;
+        -moz-box-flex: 1;
+        -webkit-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+        -webkit-box-ordinal-group: 2;
+        -moz-box-ordinal-group: 2;
+        -ms-flex-order: 2;
+        -webkit-order: 2;
+        order: 2;
+    }
+    
+    x-input .x-input-text input {
         display: block;
+        border: none;
+        width: 100%;
+        height: 100%;
+        min-width: 0;
+        padding: 0 0.2em;
+        font-size: 100%;
+        background: none;
+        outline: none;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+        box-sizing: border-box;
     }
-    /*** DEFAULT VARIANTS ***/
     
-    x-notify[type="success"] {
-        background-color: #27ae60;
+    x-input .x-input-text input::-ms-clear {
+        display: none;
     }
     
-    x-notify[type="warning"] {
-        background-color: #e67e22;
+    x-input .x-input-text x-spinner {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        -ms-box-sizing: border-box;
+        box-sizing: border-box;
     }
     
-    x-notify[type="error"] {
-        background-color: #e74c3c;
+    x-input .x-input-text x-spinner svg {
+        height: 0.6em;
+    }
+    
+    x-input .x-input-clear {
+        -webkit-box-ordinal-group: 3;
+        -moz-box-ordinal-group: 3;
+        -ms-flex-order: 3;
+        -webkit-order: 3;
+        order: 3;
+    }
+    
+    x-input .x-input-clear:before {
+        content: "×";
     }
 </style>
 
-<o-child></o-child>
-
-<x-notify closable showing>Something something something</x-notify>
-<x-notify type="success" closable>Whatever you did worked!</x-notify>
-<x-notify type="error" duration="3000">Uh oh, that's all bad</x-notify>
-<x-notify type="warning" duration="2000">Warning, danger Will Robinson</x-notify>
-
-<script>
-</script>
+<label for="foo">Foo Input</label>
+<x-input id="test" name="foo" validate="^ *(\S *){3,}$" autocomplete autofocus autospin>
+    <button>add</button>
+</x-input>

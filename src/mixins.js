@@ -44,7 +44,7 @@ export default class Mixins {
     }
 
     applyMixins(tag) {
-        this.resolveMixins(tag.mixins, []).forEach((name) => {
+        this.resolveMixins(tag.mymixins, []).forEach((name) => {
             const mixin = this.xtag.mixins[name];
             for (let type in mixin) {
                 const item = mixin[type],

@@ -545,7 +545,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo12', {
-        mixins: ['test'],
+        mymixins: ['test'],
         lifecycle: {
           created: function (){
             onCreateFired++;
@@ -569,7 +569,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo13', {
-        mixins: ['test']
+        mymixins: ['test']
       });
 
       var foo = document.createElement('x-foo13');
@@ -587,7 +587,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo14', {
-        mixins: ['test']
+        mymixins: ['test']
       });
 
       var foo = document.createElement('x-foo14');
@@ -616,7 +616,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo-mixin-fn', {
-        mixins: ['wrapFn'],
+        mymixins: ['wrapFn'],
         lifecycle: {
           'created:mixins': function (){
             originalFired = ++count;
@@ -658,7 +658,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo-multi-mixin', {
-        mixins: ['mixinOne', 'mixinTwo']
+        mymixins: ['mixinOne', 'mixinTwo']
       });
 
       var foo = document.createElement('x-foo-multi-mixin');
@@ -687,7 +687,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo15', {
-        mixins: ['test'],
+        mymixins: ['test'],
         lifecycle: {
           'created:mixins(before)': function (){
             createdFired2 = ++count;
@@ -722,7 +722,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo16', {
-        mixins: ['test'],
+        mymixins: ['test'],
         lifecycle: {
           'created:mixins(after)': function (){
             createdFired1 = ++count;
@@ -757,7 +757,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo17', {
-        mixins: ['test'],
+        mymixins: ['test'],
         lifecycle: {
           'created:mixins': function (){
             createdFired1 = ++count;
@@ -793,7 +793,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo18', {
-        mixins: ['test'],
+        mymixins: ['test'],
         accessors: {
           bar: {
             'get:mixins': function (){
@@ -822,7 +822,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo19', {
-        mixins: ['test']
+        mymixins: ['test']
       });
 
       var foo = document.createElement('x-foo19');
@@ -850,7 +850,7 @@ describe("x-tag ", function () {
       };
 
       xtag.register('x-foo20', {
-        mixins: ['test'],
+        mymixins: ['test'],
         events: {
           'click': function(e){
             mixinEvent2 = ++count;
@@ -1299,7 +1299,7 @@ describe("x-tag ", function () {
           }
         };
         var CompA = xtag.register('comp-a', {
-          mixins: ['compACreated'],
+          mymixins: ['compACreated'],
           lifecycle: {
             created: function(){
               count++;

@@ -9374,7 +9374,7 @@ var Mixins = function () {
         value: function applyMixins(tag) {
             var _this = this;
 
-            this.resolveMixins(tag.mixins, []).forEach(function (name) {
+            this.resolveMixins(tag.mymixins, []).forEach(function (name) {
                 var mixin = _this.xtag.mixins[name];
                 for (var type in mixin) {
                     var item = mixin[type],
@@ -9702,7 +9702,7 @@ var XTag = function () {
         this.utils = new Utilities(this);
         this.defaultOptions = {
             pseudos: [],
-            mixins: [],
+            mymixins: [],
             events: {},
             methods: {},
             accessors: {},
@@ -9985,87 +9985,37 @@ document.addEventListener('WebComponentsReady', function () {
 });
 //console.log(window.xtag);
 
-var captureTimes = /(\d|\d+?[.]?\d+?)(s|ms)(?!\w)/gi;
-var transPre = 'transition' in getComputedStyle(document.documentElement) ? 't' : xtag.prefix.js + 'T';
-var transDel = transPre + 'ransitionDelay';
-var transDur = transPre + 'ransitionDuration';
-var loading = document.readyState == 'complete' ? xtag.skipFrame(function () {
-    loading = false;
-}) : xtag.addEvent(document, 'readystatechange', function () {
-    if (document.readyState == 'complete') {
-        xtag.skipFrame(function () {
-            loading = false;
-        });
-        xtag.removeEvent(document, 'readystatechange', loading);
+xtag.mixins.input = {
+  lifecycle: {
+    created: function created() {
+      if (!this.xtag.input) this.xtag.input = this.querySelector('input');
     }
-});
-
-function parseTimes(style) {
-    var value = 0;
-    style.replace(captureTimes, function (match, time, unit) {
-        time = parseFloat(time) * (unit === 's' ? 1000 : 1);
-        if (time >= value) value = time;
-    });
-    return value;
-}
-
-function startTransition(node, name, transitions) {
-    var current = node.getAttribute('transition');
-    if (transitions[current]) clearTimeout(transitions[current].timer);
-
-    node.setAttribute('transition', name);
-
-    var transition = transitions[name],
-        max = transition.max;
-
-    if (isNaN(max)) {
-        var styles = getComputedStyle(node);
-        max = transition.max = parseTimes(styles[transDel]) + parseTimes(styles[transDur]);
+  },
+  methods: {
+    isValid: function isValid() {
+      return this.xtag.validationRegex ? this.xtag.validationRegex.test(this.value) : true;
     }
-
-    transition.timer = setTimeout(function () {
-        node.removeAttribute('transitioning');
-        if (transition.after) transition.after.call(node);
-        xtag.fireEvent(node, name + '-transition');
-    }, loading ? 0 : max);
-}
-
-xtag.transition = function (node, name, obj) {
-    if (node.getAttribute('transition') != name) {
-
-        var transitions = node.__transitions__ || (node.__transitions__ = {}),
-            options = transitions[name] = obj || transitions[name] || {};
-
-        if (!loading) node.setAttribute('transitioning', name);
-
-        if (options.immediate) options.immediate.call(node);
-
-        if (options.before) {
-            options.before.call(node);
-            if (loading) xtag.skipTransition(node, function () {
-                startTransition(node, name, transitions);
-            });else xtag.skipFrame(function () {
-                startTransition(node, name, transitions);
-            });
-        } else xtag.skipFrame(function () {
-            startTransition(node, name, transitions);
-        });
+  },
+  accessors: {
+    name: {
+      attribute: { property: 'input' }
+    },
+    disabled: {
+      attribute: { boolean: true, property: 'input' }
+    },
+    value: {
+      attribute: { property: 'input' },
+      get: function get() {
+        return this.xtag.input.value;
+      }
+    },
+    validate: {
+      attribute: {},
+      set: function set(value) {
+        this.xtag.validationRegex = new RegExp(value);
+      }
     }
-};
-
-xtag.pseudos.transition = {
-    onCompiled: function onCompiled(fn, pseudo) {
-        var when = pseudo.arguments[0] || 'immediate',
-            name = pseudo.arguments[1] || pseudo.key.split(':')[0];
-        return function () {
-            var options = {},
-                args = arguments;
-            options[when] = function () {
-                return fn.apply(this, args);
-            };
-            xtag.transition(this, name, options);
-        };
-    }
+  }
 };
 
 var Child = function (_XTag) {
@@ -10077,19 +10027,26 @@ var Child = function (_XTag) {
     }
 
     createClass(Child, [{
+        key: 'mymixins',
+        get: function get$$1() {
+            return ['input'];
+        }
+    }, {
         key: 'name',
         get: function get$$1() {
-            return 'x-notify';
+            return 'x-input';
+        }
+    }, {
+        key: 'content',
+        get: function get$$1() {
+            return '\n        <div class="x-input-text">\n            <input />\n            <x-spinner fade></x-spinner>\n        </div>\n        <button class="x-input-clear" tabindex="-1"></button>\n        ';
         }
     }, {
         key: 'lifecycle',
         get: function get$$1() {
             return {
-                inserted: function inserted() {
-                    this.parentNode.setAttribute('x-notify-parentnode', '');
-                },
-                removed: function removed(parent) {
-                    if (!xtag.queryChildren(parent, 'x-notify')[0]) parent.removeAttribute('x-notify-parentnode');
+                created: function created() {
+                    this.xtag.spinner = this.querySelector('x-spinner');
                 }
             };
         }
@@ -10097,19 +10054,23 @@ var Child = function (_XTag) {
         key: 'methods',
         get: function get$$1() {
             return {
-                'show:transition': function showTransition() {
-                    if (!this.showing) this.showing = true;
-                    clearTimeout(this.xtag.timer);
-                    if (this.duration) {
-                        var node = this;
-                        this.xtag.timer = setTimeout(function () {
-                            node.hide();
-                        }, this.duration);
-                    }
+                focus: function focus() {
+                    this.xtag.input.focus();
                 },
-                'hide:transition': function hideTransition() {
-                    clearTimeout(this.xtag.timer);
-                    if (this.showing) this.showing = false;
+                blur: function blur() {
+                    this.xtag.input.blur();
+                },
+                submit: function submit() {
+                    if (this.isValid()) {
+                        if (this.autospin) this.spinning = true;
+                        xtag.fireEvent(this, 'submitready');
+                    } else xtag.fireEvent(this, 'invalid');
+                },
+                clear: function clear(focus) {
+                    this.value = '';
+                    if (focus) this.xtag.input.focus();
+                    this.spinning = false;
+                    xtag.fireEvent(this, 'clear');
                 }
             };
         }
@@ -10117,8 +10078,31 @@ var Child = function (_XTag) {
         key: 'events',
         get: function get$$1() {
             return {
-                'tap:delegate([closable])': function tapDelegateClosable(e) {
-                    if (e.target == e.currentTarget) e.currentTarget.hide();
+                'focus:delegate(.x-input-text input)': function focusDelegateXInputTextInput(e) {
+                    e.currentTarget.setAttribute('focus', '');
+                },
+                'blur:delegate(.x-input-text input)': function blurDelegateXInputTextInput(e) {
+                    e.currentTarget.removeAttribute('focus');
+                },
+                'tap:delegate(.x-input-clear)': function tapDelegateXInputClear(e) {
+                    this.parentNode.clear(true);
+                },
+                'keyup:delegate(.x-input-clear)': function keyupDelegateXInputClear(e) {
+                    if (e.keyCode == 32) this.parentNode.clear();
+                },
+                'keydown:delegate(.x-input-text input)': function keydownDelegateXInputTextInput(e) {
+                    var node = e.currentTarget;
+                    switch (e.keyCode) {
+                        case 8:
+                            node.spinning = false;
+                            break;
+                        case 13:
+                            node.submit();
+                            break;
+                        case 27:
+                            node.clear(true);
+                            break;
+                    }
                 }
             };
         }
@@ -10126,19 +10110,28 @@ var Child = function (_XTag) {
         key: 'accessors',
         get: function get$$1() {
             return {
-                showing: {
+                autospin: {
+                    attribute: { boolean: true }
+                },
+                spinning: {
+                    attribute: { boolean: true, property: 'spinner' }
+                },
+                placeholder: {
+                    attribute: { property: 'input' }
+                },
+                autofocus: {
                     attribute: {
-                        boolean: true
+                        boolean: true,
+                        property: 'input'
                     },
-                    set: function set$$1(val /*, old*/) {
-                        val ? this.show() : this.hide();
+                    set: function set$$1() {
+                        this.xtag.input.focus();
                     }
                 },
-                duration: {
+                autocomplete: {
                     attribute: {
-                        validate: function validate(val) {
-                            return val || 3000;
-                        }
+                        boolean: true,
+                        property: 'input'
                     }
                 }
             };
@@ -10148,7 +10141,7 @@ var Child = function (_XTag) {
 }(XTag);
 
 var child = new Child();
-console.log(xtag.pseudos);
+console.log(xtag.mixins);
 
 return Child;
 
